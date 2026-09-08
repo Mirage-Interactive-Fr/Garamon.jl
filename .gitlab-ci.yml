@@ -9,7 +9,9 @@ variables:
 
 package-tests:
   stage: package
-  when: manual
+  rules:
+    - if: '$JC_RUN_PACKAGE_TESTS == "1"'
+    - when: never
   allow_failure: false
   resource_group: package-tests
   script:
@@ -18,6 +20,9 @@ package-tests:
       export JULIA_NUM_THREADS=1 JULIA_NUM_GC_THREADS=1 JULIA_NUM_PRECOMPILE_TASKS=1
       export OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1
       export JULIA_PKG_PRECOMPILE_AUTO=0
+      mkdir -p "$HOME/.cache"
+      exec 9>"$HOME/.cache/julia-constraints-ci.lock"
+      flock -x 9
       JC_CPUS=$(python3 -c 'import os; print(",".join(map(str, sorted(os.sched_getaffinity(0))[:8])))')
       ~/.juliaup/bin/juliaup add "$JULIA_VERSION"
       taskset -c "$JC_CPUS" timeout 20m ~/.juliaup/bin/julia +"$JULIA_VERSION" --startup-file=no --project=@stdlib .ci/standalone_package.jl
