@@ -1,0 +1,26 @@
+# Development snapshots. Full package suites require an explicit job start.
+stages: [mechanisms, package]
+default:
+  tags: [julia, ubuntu, shell]
+  interruptible: true
+variables:
+  JULIA_PKG_USE_CLI_GIT: "true"
+  JULIA_VERSION: "1.12.7"
+
+package-tests:
+  stage: package
+  when: manual
+  allow_failure: false
+  resource_group: package-tests
+  script:
+    - |
+      set -eu
+      export JULIA_NUM_THREADS=1 JULIA_NUM_GC_THREADS=1 JULIA_NUM_PRECOMPILE_TASKS=1
+      export OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1
+      export JULIA_PKG_PRECOMPILE_AUTO=0
+      JC_CPUS=$(python3 -c 'import os; print(",".join(map(str, sorted(os.sched_getaffinity(0))[:8])))')
+      ~/.juliaup/bin/juliaup add "$JULIA_VERSION"
+      taskset -c "$JC_CPUS" timeout 20m ~/.juliaup/bin/julia +"$JULIA_VERSION" --startup-file=no --project=@stdlib .ci/standalone_package.jl
+  artifacts:
+    when: always
+    paths: [ci-evidence/]
