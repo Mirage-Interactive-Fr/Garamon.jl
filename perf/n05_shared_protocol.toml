@@ -1,0 +1,32 @@
+schema_version = 1
+technique = "K3 Pfaffian + shared contraction DAG + workspace"
+status = "smoke_20_routes_qualified_exploratory"
+primary_contract = "known_metric_pool_coordinates_ordered_chains_to_owned_chain_by_iteration_matrix"
+strategies = ["independent", "workspace_unshared", "shared_allocated", "shared_workspace", "shared_cached"]
+elimination_kernel = "same_n05_shared_eliminate_for_all_candidates"
+preparation = "pair_DAG_workspaces_validation_and_output_ownership_included_in_each_episode"
+sharing = ["shared_pool_rotated_chains", "disjoint_pool_control"]
+updates = ["stable", "all_pool_columns", "one_pool_column"]
+refresh = "shared_cached_compares_metric_and_entire_pool_then_rebuilds_all_contractions_on_change"
+partial_incremental_update = "not_implemented"
+output_ownership = "borrowed_workspace_values_copied_into_owned_episode_matrix"
+exact_oracle = "independent_Rational_BigInt_Chevalley_exterior_action"
+float_qualification = "atol=1e-8_rtol=1e-10_per_coefficient_not_exactness_certificate"
+ill_conditioned_control = "diag(1,1,-1), u=(1,2^-30,1), u^4 exact=2^-120; Float64 loses contraction"
+dimensions = [2, 4, 8, 32, 65, 129]
+chain_lengths = [2, 4, 8, 16]
+chains_per_episode = [1, 4, 16]
+horizons = [1, 32, 1024]
+metric_families = ["euclidean", "signed", "null", "general"]
+threads = 1
+samples = 15
+evals = 1
+seconds_target = 0.1
+workspace_ownership = "private_per_task; one_for_shared_routes, one_per_chain_for_unshared_route"
+fixture_and_workspace_bytes = 67108864
+rss_checkpoint_bytes = 2147483648
+disk_bytes = 67108864
+wall_seconds = 900
+measurement_condition = "GARAMONBENCH_CONDITION and GARAMONBENCH_INTERFERENCE_LABEL"
+replay = "20_route_smoke_completed; full_25920_case_manifest_not_executed"
+required_future_controls = ["isolated_reverse_order", "dense_pools", "cold_start", "preexisting_artifacts_separate_contract", "numerical_precision_policy"]

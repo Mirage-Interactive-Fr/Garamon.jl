@@ -2,6 +2,11 @@ using Garamon
 using Test
 
 include("constants.jl")
+include("products.jl")
+include("weighted_zdd.jl")
+include("workspace.jl")
+include("triplejoin.jl")
+include("selector.jl")
 
 @testset "Garamon.jl" begin
     @info "Print list of geometric algebras descriptors"

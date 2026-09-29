@@ -1,0 +1,98 @@
+# I15.8: full target protocol, with an initial guarded analytical subset.
+schema_version = 1
+status = "experimental_analytic_subset"
+seed = 20260927158
+expression = "left_associated_geometric_triple"
+strategies = ["full", "recursive", "join3", "prepared", "workspace"]
+dimensions = [2, 3, 4, 5, 8, 12, 16, 32, 64, 65, 96, 128]
+horizons = [1, 32, 1024]
+requested_outputs = ["scalar", "four_distinct_coefficients"]
+output_contract = "owned_requested_coefficients_for_every_iteration"
+coefficient_type = "Float64"
+oracle = "independent_integer_or_rational_with_exact_Float64_range_guard"
+
+[algebras]
+families = ["euclidean", "one_negative", "balanced_signature", "one_null", "many_null", "scaled_diagonal"]
+scaled_values = ["1/2", "1", "2"]
+nonorthogonal_cases = "separate_admission_guard_suite_small_dimensions"
+
+[supports]
+families = ["local_bivectors", "dispersed_bivectors", "mixed_grades", "random_sparse", "subalgebra", "full_small"]
+initial_templates_per_family_pair = 4
+maximum_templates_per_family_pair = 8
+coefficient_variants_per_template = 4
+requested_sparse_counts = [4, 8, 12, 13]
+full_small_dimensions = [2, 3, 4, 5]
+seed_derivation = "sha256_of_master_seed_algebra_family_support_family_template_id"
+embedding_policy = "cycle_dimensions_and_record_original_support_ancestry"
+deduplication = "union_of_ancestry_exact_support_and_basis_permutation_invariant_groups"
+support_group_excludes = ["coefficient_values", "dimension_of_unused_basis", "horizon", "strategy", "timings"]
+
+[split]
+primary = "leave_one_algebra_family_and_one_support_family_out"
+outer_cells = 36
+validation = "next_family_in_declared_cyclic_order_on_both_axes"
+training = "exclude_test_and_validation_families_on_both_axes_then_purge_support_overlap"
+joint_test = "heldout_algebra_cross_heldout_support"
+diagnostics = ["heldout_algebra_only", "heldout_support_only", "heldout_dimension_boundary"]
+same_group_fields = ["template_ancestry", "support_equivalence", "all_coefficient_variants", "all_output_requests", "all_horizons", "all_cache_states", "all_strategies", "all_repetitions"]
+minimum_independent_training_groups = 20
+minimum_independent_validation_groups = 2
+minimum_independent_joint_test_groups = 2
+insufficient_groups_action = "report_not_evaluable_do_not_relax_holdout"
+test_timing_access = "only_after_model_configuration_and_manifest_are_frozen"
+
+[features]
+cheap = ["dimension", "actual_mask_type", "coefficient_type", "input_storage", "metric_class", "input_support_counts", "input_grade_histograms", "active_direction_counts", "request_count", "request_grades", "declared_horizon", "observable_cache_state"]
+optional_charged = ["support_intersection_statistics", "structural_output_upper_bound", "compatible_plan_cache_lookup"]
+forbidden_free = ["oracle_output_support", "oracle_pair_count", "measured_test_strategy_time", "future_JIT_time", "unpaid_prepared_paths", "future_support_changes", "unrevealed_actual_horizon"]
+
+[policies]
+baselines = ["full_with_budget_guard", "best_constant_strategy_selected_on_training", "fixed_analytic_cost_rule"]
+learned = ["bounded_depth_cost_sensitive_tree", "bounded_regularized_log_cost_predictor"]
+maximum_tree_depth = 3
+hyperparameter_choices = 12
+correctness_gate = "deterministic_preconditions_before_predicted_cost"
+fallback = "admitted_exact_full_or_explicit_resource_refusal"
+unknown_horizon = "separate_trace_experiment_no_future_information"
+
+[measurement]
+modes = ["new_process_existing_native_cache", "warm_process_new_structure", "compatible_artifacts_already_present"]
+actual_horizons_required = true
+include_feature_and_inference_cost = true
+include_selector_first_JIT_when_applicable = true
+include_candidate_preparation_and_rebuilds = true
+raw_samples_required = true
+alternate_candidate_order = true
+primary_samples = 15
+seconds_target = 0.1
+cold_process_repetitions = 3
+parallel_CPU_campaigns = false
+
+[budgets]
+maximum_plan_paths = 65536
+maximum_batch_path_upper_bound = 1048576
+maximum_live_plan_and_workspace_bytes = 67108864
+maximum_fixture_allocation_bytes = 268435456
+maximum_process_rss_bytes = 2147483648
+maximum_batch_seconds = 900
+maximum_cases_per_batch = 300
+timeout_labels = "right_censored_no_zero_time_imputation"
+missing_candidate_labels = "do_not_treat_as_ineligible_or_slow_without_evidence"
+
+[metrics]
+oracle = "minimum_measured_eligible_strategy_cost_for_whole_episode_same_initial_state"
+primary = ["total_runtime_ratio", "absolute_regret_us", "median_ratio", "p95_ratio", "maximum_ratio", "ratio_over_2_count", "allocation_bytes", "peak_rss", "guard_violation_count", "fallback_rate"]
+aggregation = "equal_weight_per_support_group_then_algebra_support_family_cell"
+required_provenance = ["source_tree_sha256", "harness_sha256", "manifest_sha256", "julia_version", "cpu", "threads", "cache_catalogue_sha256", "instance_manifest_sha256", "split_manifest_sha256", "selector_sha256"]
+
+[implementation]
+model = "analytic_v1_unfitted"
+learned_model_validated = false
+cache_mode = "warm_process_new_structure"
+input_support_changes = "explicit_refusal_and_new_selection_required"
+intermediate_cancellation = "structural_subset_for_prepared_second_plan_or_workspace_rebuild"
+nonorthogonal_full_max_dimension = 2
+cold_catalogue_and_compatible_artifact_comparisons = "not_implemented"
+outer_cells_implemented = 1
+default_screening_max_cases = 144
