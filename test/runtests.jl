@@ -9,6 +9,7 @@ include("triplejoin.jl")
 include("selector.jl")
 include("modular.jl")
 include("givens.jl")
+include("disjoint.jl")
 
 @testset "Garamon.jl" begin
     @info "Print list of geometric algebras descriptors"
