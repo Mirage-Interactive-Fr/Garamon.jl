@@ -49,9 +49,12 @@ using Test, Random, Garamon
     @test_throws ArgumentError prepare_propagated_product(a,b,c;max_paths=1)
     @test_throws ArgumentError run_propagated_product(certificate,a,b,c;
         on_invalid=:unknown)
+    floating=multivector(ga,Dict(UInt64(0)=>1.5,
+        UInt64(1)=>2.5);storage=:sparse)
+    @test_throws ArgumentError run_propagated_product(certificate,floating,b,c;
+        on_invalid=:direct)
     metric(ga)[1,1]=2
     @test_throws ArgumentError run_propagated_product(certificate,a,b,c)
     @test run_propagated_product(certificate,a,b,c;on_invalid=:direct)==
         geometric_product(geometric_product(a,b),c)
 end
-

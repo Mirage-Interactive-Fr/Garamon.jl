@@ -55,6 +55,11 @@ function run_propagated_product(cert::PropagatedProductCertificate,
         on_invalid::Symbol=:error,diagnostics::Bool=false)
     on_invalid in (:error,:direct) ||
         throw(ArgumentError("on_invalid must be :error or :direct"))
+    ga=_same_algebra(a,b)
+    _same_algebra(a,c)
+    eltype(a)<:Integer && eltype(b)<:Integer && eltype(c)<:Integer &&
+        eltype(metric(ga))<:Integer ||
+        throw(ArgumentError("propagated exact execution requires integer coefficients and metric"))
     valid=try
         _propagated_valid(cert,a,b,c)
     catch exception
