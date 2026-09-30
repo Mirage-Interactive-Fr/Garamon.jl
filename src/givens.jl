@@ -52,10 +52,16 @@ function run_givens_basis_change(plan::GivensPlan,a::AbstractMultiVector)
     _givens_euclidean(ga)
     eltype(a)<:Integer || eltype(a)<:Rational ||
         throw(ArgumentError("Givens input coefficients must be exact rational"))
-    K=_masktype(ga)
+    _run_givens_basis_change(plan,a,_masktype(ga))
+end
+
+function _run_givens_basis_change(plan::GivensPlan,a::AbstractMultiVector,
+                                  ::Type{K}) where {K<:Integer}
+    ga=a.algebra
     current=Dict{K,_GivensRational}()
     for (mask,value) in _terms(a)
-        _addterm!(current,mask,_GivensRational(value);max_terms=plan.max_terms)
+        _addterm!(current,convert(K,mask),_GivensRational(value);
+                  max_terms=plan.max_terms)
     end
     for (i,j,c,s) in plan.rotations
         bit_i=one(K)<<(i-1)
@@ -79,4 +85,3 @@ function run_givens_basis_change(plan::GivensPlan,a::AbstractMultiVector)
     end
     SparseMultiVector(ga,current)
 end
-
