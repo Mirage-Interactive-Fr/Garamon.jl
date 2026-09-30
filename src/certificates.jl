@@ -43,6 +43,13 @@ function _propagated_valid(certificate::PropagatedProductCertificate,
     true
 end
 
+_certificate_bigint(a::SparseMultiVector{BigInt})=a
+function _certificate_bigint(a::AbstractMultiVector)
+    K=_masktype(a.algebra)
+    SparseMultiVector(a.algebra,Dict{K,BigInt}(
+        convert(K,mask)=>BigInt(value) for (mask,value) in _terms(a)))
+end
+
 """
     run_propagated_product(cert,a,b,c; on_invalid=:error,diagnostics=false)
 
@@ -60,6 +67,9 @@ function run_propagated_product(cert::PropagatedProductCertificate,
     eltype(a)<:Integer && eltype(b)<:Integer && eltype(c)<:Integer &&
         eltype(metric(ga))<:Integer ||
         throw(ArgumentError("propagated exact execution requires integer coefficients and metric"))
+    exact_a=_certificate_bigint(a)
+    exact_b=_certificate_bigint(b)
+    exact_c=_certificate_bigint(c)
     valid=try
         _propagated_valid(cert,a,b,c)
     catch exception
@@ -69,12 +79,12 @@ function run_propagated_product(cert::PropagatedProductCertificate,
     if !valid
         on_invalid==:error &&
             throw(ArgumentError("propagated product certificate is invalid"))
-        result=geometric_product(geometric_product(a,b),c)
+        result=geometric_product(geometric_product(exact_a,exact_b),exact_c)
         return diagnostics ? (result,(used_fallback=true,
             predicted_support=length(cert.second.left_masks))) : result
     end
-    intermediate=run_product(cert.first,a,b)
-    result=run_product(cert.second,intermediate,c;allow_subsets=true)
+    intermediate=run_product(cert.first,exact_a,exact_b)
+    result=run_product(cert.second,intermediate,exact_c;allow_subsets=true)
     diagnostics ? (result,(used_fallback=false,
         predicted_support=length(cert.second.left_masks),
         actual_support=length(intermediate.values))) : result

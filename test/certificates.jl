@@ -53,6 +53,15 @@ using Test, Random, Garamon
         UInt64(1)=>2.5);storage=:sparse)
     @test_throws ArgumentError run_propagated_product(certificate,floating,b,c;
         on_invalid=:direct)
+    big_input=multivector(ga,Dict(UInt64(0)=>typemax(Int64),
+        UInt64(1)=>typemax(Int64));storage=:sparse)
+    large_certificate=prepare_propagated_product(big_input,big_input,big_input)
+    big_result=run_propagated_product(
+        large_certificate,big_input,big_input,big_input)
+    exact_input=multivector(ga,Dict(UInt64(0)=>BigInt(typemax(Int64)),
+        UInt64(1)=>BigInt(typemax(Int64)));storage=:sparse)
+    @test big_result==geometric_product(
+        geometric_product(exact_input,exact_input),exact_input)
     metric(ga)[1,1]=2
     @test_throws ArgumentError run_propagated_product(certificate,a,b,c)
     @test run_propagated_product(certificate,a,b,c;on_invalid=:direct)==
