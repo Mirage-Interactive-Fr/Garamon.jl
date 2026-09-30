@@ -578,6 +578,14 @@ end
     @test cache_stats(cache).misses == 4
     basis(ga)[1] = oldname
     @test_throws ArgumentError cached_product!(cache, a, b; max_paths=0)
+    for n in (3, 8, 65, 129)
+        sized_ga=algebra(n,:ega)
+        left=basisvector(sized_ga,1;storage=:sparse)
+        right=basisvector(sized_ga,n;storage=:sparse)
+        key=Garamon._plan_cache_key(left,right,:geometric,1 << 16)
+        plan=prepare_product(left,right)
+        @test Garamon._plan_cache_size(key,plan)>=Base.summarysize((key,plan))
+    end
 
     # Numerically equal metrics can have different coefficient types. Reusing
     # a Float64 plan for a rational algebra would silently lose exactness.
@@ -618,6 +626,33 @@ end
     end
     @test cache_stats(roulette).evictions >= 1
     @test cache_stats(roulette).policy == :roulette
+    tinylfu = ProductPlanCache(max_bytes=max(size_ab, size_ac),
+                              policy=:tinylfu, frequency_slots=16)
+    for _ in 1:4
+        @test cached_product!(tinylfu, a, b) == a * b
+    end
+    @test cached_product!(tinylfu, a, c) == a * c
+    @test cache_stats(tinylfu).admissions_rejected == 1
+    @test cache_stats(tinylfu).entries == 1
+    for _ in 1:5
+        @test cached_product!(tinylfu, a, c) == a * c
+    end
+    @test cache_stats(tinylfu).evictions >= 1
+    @test cache_stats(tinylfu).frequency_metadata_bytes == 64
+    sieve = ProductPlanCache(max_bytes=max(size_ab, size_ac), policy=:sieve)
+    @test cached_product!(sieve, a, b) == a * b
+    @test cached_product!(sieve, a, b) == a * b
+    @test cached_product!(sieve, a, c) == a * c
+    @test cache_stats(sieve).sieve_scans >= 2
+    @test cache_stats(sieve).entries == 1
+    @test cache_stats(sieve).estimated_bytes <= cache_stats(sieve).max_bytes
+    empty!(tinylfu)
+    empty!(sieve)
+    @test cache_stats(tinylfu).frequency_metadata_bytes == 64
+    @test cache_stats(tinylfu).admissions_rejected == 0
+    @test cache_stats(sieve).sieve_scans == 0
+    @test_throws ArgumentError ProductPlanCache(policy=:tinylfu,
+                                                frequency_slots=15)
     mixed_left = a + b
     mixed_right = a - b
     exact_mixed = mixed_left * mixed_right
