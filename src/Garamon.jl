@@ -48,6 +48,7 @@ export unpack_product_batch
 export ProductPlanCache, cached_plan!, cached_product!, cache_stats
 export ModularProductPlan, prepare_modular_product, run_modular_product
 export modular_geometric_product
+export GivensPlan, prepare_givens_basis_change, run_givens_basis_change
 export TopWedgePlan, prepare_top_wedge, top_wedge_coefficient
 export MaskTrie, build_trie, trie_wedge, count_nodes, wedge_visits
 export WedgeCoefficientPlan, prepare_wedge_coefficient, wedge_coefficient
@@ -78,6 +79,7 @@ include("triplejoin.jl")
 include("generated.jl")
 include("cache.jl")
 include("modular.jl")
+include("givens.jl")
 include("gradeblocks.jl")
 include("materialized_trie.jl")
 include("trains.jl")

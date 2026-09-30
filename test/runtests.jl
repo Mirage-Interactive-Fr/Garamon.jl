@@ -8,6 +8,7 @@ include("workspace.jl")
 include("triplejoin.jl")
 include("selector.jl")
 include("modular.jl")
+include("givens.jl")
 
 @testset "Garamon.jl" begin
     @info "Print list of geometric algebras descriptors"
