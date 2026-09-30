@@ -34,6 +34,8 @@ export grade_involution, clifford_conjugate
 export right_complement, right_uncomplement, metric_dual, metric_undual
 export basisvectors, @algebra, GAExpr, @ga, evaluate
 export ExpressionPlan, prepare_expression
+export ProductEGraphPlan, prepare_product_egraph, run_product_egraph
+export product_egraph_stats
 export ProductPlan, prepare_product, run_product, batch_product
 export ProductWorkspace, run_product_values!, run_product!
 export TripleJoinPlan, prepare_triple_join, TripleJoinWorkspace
@@ -109,6 +111,7 @@ include("trains.jl")
 include("duality.jl")
 include("operations.jl")
 include("dsl.jl")
+include("egraph.jl")
 include("selector.jl")
 include("decomposition.jl")
 include("subspace.jl")
