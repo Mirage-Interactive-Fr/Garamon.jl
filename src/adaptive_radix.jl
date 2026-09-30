@@ -125,20 +125,35 @@ function prepare_adaptive_radix(right::SparseMultiVector{T,K};
     AdaptiveRadixIndex{K,T,typeof(right.algebra)}(right.algebra,root,nbytes,count)
 end
 
-function _art_visit_disjoint(f,leaf::ARTLeaf,leftmask,depth,nbytes)
-    iszero(leftmask & leaf.mask) && f(leaf.mask,leaf.value)
-    nothing
-end
-
-function _art_visit_disjoint(f,node::ARTBranch,leftmask,depth,nbytes)
-    for (offset,byte) in enumerate(node.prefix)
+function _art_accumulate!(output::Dict{K,S},node::AbstractARTNode{K,T},
+                          leftmask::K,leftvalue,depth::Int,
+                          max_terms::Int) where {K,S,T}
+    if node isa ARTLeaf{K,T}
+        leaf=node::ARTLeaf{K,T}
+        iszero(leftmask & leaf.mask) || return nothing
+        mask=leftmask | leaf.mask
+        value=get(output,mask,zero(S))+
+            convert(S,_art_wedge_sign(leftmask,leaf.mask)*leftvalue*leaf.value)
+        if iszero(value)
+            delete!(output,mask)
+        else
+            output[mask]=value
+            length(output)<=max_terms ||
+                throw(ArgumentError("radix wedge output term budget"))
+        end
+        return nothing
+    end
+    branch=node::ARTBranch{K,T}
+    for (offset,byte) in enumerate(branch.prefix)
         iszero(byte & _art_byte(leftmask,depth+offset-1)) || return nothing
     end
-    edge_place=depth+length(node.prefix)
+    edge_place=depth+length(branch.prefix)
     leftbyte=_art_byte(leftmask,edge_place)
-    for (edge,child) in zip(node.keys,node.children)
+    for position in eachindex(branch.keys)
+        edge=branch.keys[position]
         iszero(edge & leftbyte) || continue
-        _art_visit_disjoint(f,child,leftmask,edge_place+1,nbytes)
+        _art_accumulate!(output,branch.children[position],leftmask,leftvalue,
+                         edge_place+1,max_terms)
     end
     nothing
 end
@@ -164,22 +179,10 @@ function radix_wedge(left::SparseMultiVector{TL,K},
     dimension(ga)==dimension(target) && metric(ga)==metric(target) &&
         basis(ga)==basis(target) && kind(ga)==kind(target) ||
         throw(ArgumentError("radix index belongs to another algebra"))
-    S=promote_type(TL,TR)
-    output=Dict{K,S}()
+    output=Dict{K,promote_type(TL,TR)}()
     isnothing(index.root) && return SparseMultiVector(ga,output)
     for (leftmask,leftvalue) in left.values
-        _art_visit_disjoint(index.root,leftmask,1,index.nbytes) do rightmask,rightvalue
-            mask=leftmask | rightmask
-            value=get(output,mask,zero(S))+
-                convert(S,_art_wedge_sign(leftmask,rightmask)*leftvalue*rightvalue)
-            if iszero(value)
-                delete!(output,mask)
-            else
-                output[mask]=value
-                length(output)<=max_terms ||
-                    throw(ArgumentError("radix wedge output term budget"))
-            end
-        end
+        _art_accumulate!(output,index.root,leftmask,leftvalue,1,max_terms)
     end
     SparseMultiVector(ga,output)
 end
