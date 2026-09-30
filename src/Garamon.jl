@@ -57,6 +57,8 @@ export PropagatedProductCertificate, prepare_propagated_product
 export run_propagated_product
 export InvariantSectorPlan, prepare_invariant_sectors, run_invariant_sectors
 export CrossGramPlan, prepare_cross_gram, run_cross_gram, cross_gram_scalar
+export FermionicShear, FermionicGaussianPlan, prepare_fermionic_gaussian
+export run_fermionic_gaussian
 export TopWedgePlan, prepare_top_wedge, top_wedge_coefficient
 export MaskTrie, build_trie, trie_wedge, count_nodes, wedge_visits
 export WedgeCoefficientPlan, prepare_wedge_coefficient, wedge_coefficient
@@ -93,6 +95,7 @@ include("filtered.jl")
 include("certificates.jl")
 include("sectors.jl")
 include("crossgram.jl")
+include("fermionic.jl")
 include("gradeblocks.jl")
 include("materialized_trie.jl")
 include("trains.jl")

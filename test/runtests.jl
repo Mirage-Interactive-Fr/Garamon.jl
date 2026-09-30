@@ -14,6 +14,7 @@ include("filtered.jl")
 include("certificates.jl")
 include("sectors.jl")
 include("crossgram.jl")
+include("fermionic.jl")
 
 @testset "Garamon.jl" begin
     @info "Print list of geometric algebras descriptors"
