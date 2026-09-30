@@ -69,8 +69,13 @@ function run_wavefront(plan::WavefrontPlan{T,K},
     for (i,factor) in enumerate(factors)
         _wavefront_same_algebra(plan.algebra,factor.algebra) ||
             throw(ArgumentError("wavefront algebra changed"))
-        sort!(collect(keys(factor.values)))==plan.supports[i] ||
+        support=plan.supports[i]
+        length(factor.values)==length(support) ||
             throw(ArgumentError("wavefront factor support changed"))
+        for mask in support
+            haskey(factor.values,mask) ||
+                throw(ArgumentError("wavefront factor support changed"))
+        end
     end
     plan.target in plan.suffix[1] || return zero(T)
     frontier=Dict{K,T}(zero(K)=>one(T))
