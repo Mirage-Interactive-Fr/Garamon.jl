@@ -62,6 +62,7 @@ export run_fermionic_gaussian
 export TopWedgePlan, prepare_top_wedge, top_wedge_coefficient
 export MaskTrie, build_trie, trie_wedge, count_nodes, wedge_visits
 export AdaptiveRadixIndex, prepare_adaptive_radix, radix_wedge, radix_stats
+export WavefrontPlan, prepare_wavefront, run_wavefront, wavefront_stats
 export WedgeCoefficientPlan, prepare_wedge_coefficient, wedge_coefficient
 export CliffordTrain, separable_train, train_product
 export MetricDiagonalization, diagonalize_metric, to_orthogonal, from_orthogonal
@@ -100,6 +101,7 @@ include("fermionic.jl")
 include("gradeblocks.jl")
 include("materialized_trie.jl")
 include("adaptive_radix.jl")
+include("wavefront.jl")
 include("trains.jl")
 include("duality.jl")
 include("operations.jl")
