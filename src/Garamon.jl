@@ -63,6 +63,8 @@ export TopWedgePlan, prepare_top_wedge, top_wedge_coefficient
 export MaskTrie, build_trie, trie_wedge, count_nodes, wedge_visits
 export AdaptiveRadixIndex, prepare_adaptive_radix, radix_wedge, radix_stats
 export WavefrontPlan, prepare_wavefront, run_wavefront, wavefront_stats
+export SplitMatrixPlan, split_matrix_transform, split_matrix_inverse
+export prepare_split_matrix, run_split_matrix, split_matrix_stats
 export WedgeCoefficientPlan, prepare_wedge_coefficient, wedge_coefficient
 export CliffordTrain, separable_train, train_product
 export MetricDiagonalization, diagonalize_metric, to_orthogonal, from_orthogonal
@@ -102,6 +104,7 @@ include("gradeblocks.jl")
 include("materialized_trie.jl")
 include("adaptive_radix.jl")
 include("wavefront.jl")
+include("splitmatrix.jl")
 include("trains.jl")
 include("duality.jl")
 include("operations.jl")

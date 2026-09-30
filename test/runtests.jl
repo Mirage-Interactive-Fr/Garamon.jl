@@ -17,6 +17,7 @@ include("crossgram.jl")
 include("fermionic.jl")
 include("adaptive_radix.jl")
 include("wavefront.jl")
+include("splitmatrix.jl")
 
 @testset "Garamon.jl" begin
     @info "Print list of geometric algebras descriptors"
