@@ -7,6 +7,7 @@ include("weighted_zdd.jl")
 include("workspace.jl")
 include("triplejoin.jl")
 include("selector.jl")
+include("modular.jl")
 
 @testset "Garamon.jl" begin
     @info "Print list of geometric algebras descriptors"
