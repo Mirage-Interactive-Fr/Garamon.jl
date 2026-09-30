@@ -10,14 +10,14 @@ end
 mutable struct ARTBranch{K,T} <: AbstractARTNode{K,T}
     prefix::Vector{UInt8}
     keys::Vector{UInt8}
-    children::Vector{AbstractARTNode{K,T}}
+    children::Vector{Union{ARTLeaf{K,T},ARTBranch{K,T}}}
     lookup::Union{Nothing,Vector{UInt16}}
     capacity::Int
 end
 
 function _art_branch(::Type{K},::Type{T},prefix::Vector{UInt8}) where {K,T}
     keys=UInt8[]
-    children=AbstractARTNode{K,T}[]
+    children=Union{ARTLeaf{K,T},ARTBranch{K,T}}[]
     sizehint!(keys,4)
     sizehint!(children,4)
     ARTBranch{K,T}(prefix,keys,children,nothing,4)
@@ -34,7 +34,7 @@ function _art_child_index(node::ARTBranch,key::UInt8)
 end
 
 function _art_add_child!(node::ARTBranch{K,T},key::UInt8,
-                         child::AbstractARTNode{K,T}) where {K,T}
+                         child::Union{ARTLeaf{K,T},ARTBranch{K,T}}) where {K,T}
     _art_child_index(node,key)==0 || error("duplicate radix edge")
     count=length(node.children)+1
     count<=256 || error("byte radix fanout exceeded")
@@ -103,7 +103,7 @@ end
 """An owned snapshot of right-hand sparse blade coefficients for wedge queries."""
 struct AdaptiveRadixIndex{K,T,A<:GeometricAlgebra}
     algebra::A
-    root::Union{Nothing,AbstractARTNode{K,T}}
+    root::Union{Nothing,ARTLeaf{K,T},ARTBranch{K,T}}
     nbytes::Int
     support::Int
 end
@@ -116,7 +116,7 @@ function prepare_adaptive_radix(right::SparseMultiVector{T,K};
     count<=div(max_nodes+1,2) ||
         throw(ArgumentError("radix index node budget"))
     nbytes=cld(dimension(right.algebra),8)
-    root::Union{Nothing,AbstractARTNode{K,T}}=nothing
+    root::Union{Nothing,ARTLeaf{K,T},ARTBranch{K,T}}=nothing
     for mask in sort!(collect(keys(right.values)))
         value=right.values[mask]
         root=isnothing(root) ? ARTLeaf{K,T}(mask,value) :
