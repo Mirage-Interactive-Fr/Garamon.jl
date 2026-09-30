@@ -4,8 +4,11 @@ struct InvariantSectorPlan{P<:ProductPlan}
     output_parity::Symbol
 end
 
+_sector_keytype(::DenseMultiVector)=UInt64
+_sector_keytype(::SparseMultiVector{T,K}) where {T,K}=K
+
 function _sector_parts(a::AbstractMultiVector)
-    K=_masktype(a.algebra)
+    K=_sector_keytype(a)
     even=Dict{K,BigInt}()
     odd=Dict{K,BigInt}()
     for (mask,value) in _terms(a)
@@ -17,7 +20,7 @@ end
 
 function _sector_projection(a::AbstractMultiVector, parity::Symbol)
     parity==:all && return a
-    K=_masktype(a.algebra)
+    K=_sector_keytype(a)
     SparseMultiVector(a.algebra,Dict{K,BigInt}(
         convert(K,mask)=>BigInt(value) for (mask,value) in _terms(a)
         if iseven(_blade_grade(mask))==(parity==:even)))
@@ -78,7 +81,7 @@ function run_invariant_sectors(plan::InvariantSectorPlan,
     end
     selected=plan.output_parity==:even ? (1,4) :
         plan.output_parity==:odd ? (2,3) : (1,2,3,4)
-    K=_masktype(ga)
+    K=eltype(plan.plans[1].left_masks)
     result=SparseMultiVector(ga,Dict{K,BigInt}())
     for i in selected
         partial=run_product(plan.plans[i],pairs[i]...)

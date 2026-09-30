@@ -114,7 +114,7 @@ function run_product(plan::ProductPlan{T,K}, a::AbstractMultiVector,
     ga = _validate_plan_inputs(plan, a, b; allow_subsets)
     S = promote_type(T, eltype(a), eltype(b))
     if length(plan.paths) < length(plan.left_masks) + length(plan.right_masks)
-        result = _empty_mv(ga, S, :sparse)
+        result = SparseMultiVector(ga, Dict{K,S}())
         for (ai, bi, oi, factor) in plan.paths
             _accumulate!(result, plan.output_masks[oi],
                          factor * coefficient_mask(a, plan.left_masks[ai]) *
