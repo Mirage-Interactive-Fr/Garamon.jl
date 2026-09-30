@@ -67,6 +67,9 @@ export AdaptiveRadixIndex, prepare_adaptive_radix, radix_wedge, radix_stats
 export WavefrontPlan, prepare_wavefront, run_wavefront, wavefront_stats
 export SplitMatrixPlan, split_matrix_transform, split_matrix_inverse
 export prepare_split_matrix, run_split_matrix, split_matrix_stats
+export BilinearSplitPlan, prepare_bilinear_split, run_bilinear_split
+export bilinear_split_stats, VerifiedBilinearPlan
+export prepare_verified_bilinear, run_verified_bilinear, verified_bilinear_stats
 export WedgeCoefficientPlan, prepare_wedge_coefficient, wedge_coefficient
 export CliffordTrain, separable_train, train_product
 export MetricDiagonalization, diagonalize_metric, to_orthogonal, from_orthogonal
@@ -107,6 +110,7 @@ include("materialized_trie.jl")
 include("adaptive_radix.jl")
 include("wavefront.jl")
 include("splitmatrix.jl")
+include("bilinear.jl")
 include("trains.jl")
 include("duality.jl")
 include("operations.jl")

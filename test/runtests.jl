@@ -19,6 +19,7 @@ include("adaptive_radix.jl")
 include("wavefront.jl")
 include("splitmatrix.jl")
 include("egraph.jl")
+include("bilinear.jl")
 
 @testset "Garamon.jl" begin
     @info "Print list of geometric algebras descriptors"
