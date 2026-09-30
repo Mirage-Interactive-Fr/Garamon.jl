@@ -43,7 +43,14 @@ function lifecycle_environment(directory, catalogue)
     end
     # Reuse the exact pinned dependency closure, adding only a path entry for the
     # live Garamon checkout. No resolver/network/package installation is needed.
-    manifest = TOML.parsefile(joinpath(LIFECYCLE_ROOT, "Manifest.toml"))
+    # Pkg installs Git dependencies without their development Manifest.toml.
+    # The active benchmark project still owns the exact resolved closure.
+    source_manifest=joinpath(LIFECYCLE_ROOT,"Manifest.toml")
+    active=Base.active_project()
+    benchmark_manifest=isnothing(active) ? "" : joinpath(dirname(active),"Manifest.toml")
+    manifest_path=isfile(source_manifest) ? source_manifest : benchmark_manifest
+    isfile(manifest_path) || error("an active resolved Manifest.toml is required for the precompilation catalogue")
+    manifest = TOML.parsefile(manifest_path)
     delete!(manifest, "project_hash")
     manifest["deps"]["Garamon"] = [Dict("uuid" => original["uuid"],
         "version" => original["version"], "path" => LIFECYCLE_ROOT,
