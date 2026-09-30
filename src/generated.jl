@@ -29,17 +29,26 @@ function generate_product(plan::ProductPlan; max_paths::Integer=64)
     return GeneratedProduct{P,typeof(plan),T}(plan, factors)
 end
 
-@generated function _generated_path_values(::Val{P}, factors::Vector{F},
-                                           left::Vector{S}, right::Vector{S},
-                                           ::Val{O}) where {P,F,S,O}
+@generated function _generated_path_accumulate!(::Val{P}, factors::Vector{F},
+                                              left::Vector{S}, right::Vector{S},
+                                              output::Vector{R}) where {P,F,S,R}
     length(P) <= 256 || error("generated path ceiling exceeded")
     statements = [:(output[$oi] += factors[$i] * left[$ai] * right[$bi])
                   for (i, (ai, bi, oi)) in enumerate(P)]
     return quote
-        output = zeros(promote_type(F, S), O)
         $(statements...)
         output
     end
+end
+
+function _generated_path_values(paths::Val{P}, factors::Vector{F},
+                                left::Vector{S}, right::Vector{S},
+                                output_count::Int) where {P,F,S}
+    # The coefficient type is static even when the output count is not.
+    # Allocating here avoids a dynamic Val(output_count) dispatch and keeps
+    # the generated method restricted to its bounded path topology.
+    output=zeros(promote_type(F,S),output_count)
+    _generated_path_accumulate!(paths,factors,left,right,output)
 end
 
 """Run a generated product after checking support and algebra snapshots."""
@@ -52,7 +61,7 @@ function run_generated_product(program::GeneratedProduct{P},
     left = S[coefficient_mask(a, mask) for mask in plan.left_masks]
     right = S[coefficient_mask(b, mask) for mask in plan.right_masks]
     values = _generated_path_values(Val(P), program.factors, left, right,
-                                    Val(length(plan.output_masks)))
+                                    length(plan.output_masks))
     K = eltype(plan.output_masks)
     return SparseMultiVector(ga,
         Dict{K,eltype(values)}(mask => value

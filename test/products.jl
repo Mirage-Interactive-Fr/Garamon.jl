@@ -395,7 +395,7 @@ end
     for operation in (:geometric, :wedge, :left, :right, :inner, :dot, :scalar)
         plan = prepare_product(a, b; operation)
         generated = generate_product(plan; max_paths=4)
-        @test run_generated_product(generated, a, b) == run_product(plan, a, b)
+        @test (@inferred run_generated_product(generated, a, b)) == run_product(plan, a, b)
         @test run_generated_product(generated, 3a, 2b) ==
               6 * run_product(plan, a, b)
         @test_throws ArgumentError run_generated_product(generated,

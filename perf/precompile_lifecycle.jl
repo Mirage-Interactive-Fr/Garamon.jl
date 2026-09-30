@@ -29,7 +29,7 @@ function lifecycle_cache_info(depot)
        harness_bytes=sum(filesize(f) for f in files if occursin("GaramonLifecycle", f); init=0))
 end
 
-function lifecycle_environment(directory, catalogue)
+function lifecycle_environment(directory, catalogue; dependency_manifest=nothing)
     package = joinpath(directory, "GaramonLifecycle")
     mkpath(joinpath(package, "src"))
     original = TOML.parsefile(joinpath(LIFECYCLE_ROOT, "Project.toml"))
@@ -48,9 +48,19 @@ function lifecycle_environment(directory, catalogue)
     source_manifest=joinpath(LIFECYCLE_ROOT,"Manifest.toml")
     active=Base.active_project()
     benchmark_manifest=isnothing(active) ? "" : joinpath(dirname(active),"Manifest.toml")
-    manifest_path=isfile(source_manifest) ? source_manifest : benchmark_manifest
+    manifest_path=isnothing(dependency_manifest) ?
+        (isfile(source_manifest) ? source_manifest : benchmark_manifest) :
+        abspath(dependency_manifest)
     isfile(manifest_path) || error("an active resolved Manifest.toml is required for the precompilation catalogue")
     manifest = TOML.parsefile(manifest_path)
+    # A profiling worker can own a smaller environment than its target. Use
+    # the campaign's pinned closure explicitly in that case, and reject an
+    # incomplete closure before spawning the native precompilation process.
+    for name in union(keys(deps), keys(original["deps"]))
+        name == "Garamon" && continue
+        entries=get(manifest["deps"],name,Any[])
+        length(entries)==1 || error("catalogue dependency manifest must contain exactly one entry for "*name)
+    end
     delete!(manifest, "project_hash")
     manifest["deps"]["Garamon"] = [Dict("uuid" => original["uuid"],
         "version" => original["version"], "path" => LIFECYCLE_ROOT,
