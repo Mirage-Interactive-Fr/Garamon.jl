@@ -11,6 +11,7 @@ include("modular.jl")
 include("givens.jl")
 include("disjoint.jl")
 include("filtered.jl")
+include("certificates.jl")
 
 @testset "Garamon.jl" begin
     @info "Print list of geometric algebras descriptors"
